@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — ResultPortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0B1F3A; --navy-mid: #132A4E; --navy-light: #1E3D6B;
+    --gold: #C9A84C; --gold-light: #E8C96A;
+    --white: #FFFFFF; --surface: #F8FAFD; --border: #E2E8F0;
+    --text-main: #0B1F3A; --text-sub: #4A6080; --text-muted: #8FA3BC;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text-main); display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; background: var(--navy); flex-shrink: 0;
+    display: flex; flex-direction: column;
+    padding: 24px 16px;
+    position: fixed; top: 0; left: 0; height: 100vh;
+    z-index: 100;
+  }
+  .sidebar-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 8px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 24px;
+  }
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), #B8962E);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .brand-icon svg { width: 18px; height: 18px; color: var(--navy); }
+  .brand-name { font-family: 'Playfair Display', serif; font-size: 16px; color: white; }
+
+  .nav-section { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; color: rgba(255,255,255,0.3); text-transform: uppercase; padding: 0 12px; margin-bottom: 8px; }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px; border-radius: 10px; margin-bottom: 2px;
+    color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 500;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .nav-link:hover, .nav-link.active {
+    background: rgba(255,255,255,0.08); color: white;
+  }
+  .nav-link.active { background: rgba(201,168,76,0.12); color: var(--gold-light); }
+  .sidebar-footer {
+    margin-top: auto; padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .admin-chip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: rgba(255,255,255,0.05);
+    border-radius: 10px; margin-bottom: 10px;
+  }
+  .admin-avatar {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--navy-light), #2D4A6E);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold-light); font-weight: 700; font-size: 14px;
+  }
+  .admin-info span { display: block; font-size: 13px; color: white; font-weight: 500; }
+  .admin-info small { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+  /* MAIN */
+  .main-content { margin-left: 240px; flex: 1; padding: 32px; }
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--navy); margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: var(--text-muted); }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: white; border-radius: 16px; padding: 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(11,31,58,0.05);
+    display: flex; align-items: center; gap: 18px;
+  }
+  .stat-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .stat-icon svg { width: 24px; height: 24px; }
+  .icon-students { background: #EFF6FF; color: #2563EB; }
+  .icon-subjects { background: #F0FDF4; color: #16A34A; }
+  .icon-results  { background: #FFF7ED; color: #EA580C; }
+  .stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-value { font-size: 32px; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--navy); }
+
+  /* QUICK ACTIONS */
+  .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--navy); }
+  .actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 32px; }
+  .action-card {
+    background: white; border-radius: 14px; padding: 20px 22px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+    text-decoration: none; color: var(--text-main);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .action-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(11,31,58,0.1); border-color: var(--navy); }
+  .action-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .action-icon svg { width: 22px; height: 22px; }
+  .a-blue { background: #EFF6FF; color: #2563EB; }
+  .a-green { background: #F0FDF4; color: #16A34A; }
+  .a-orange { background: #FFF7ED; color: #EA580C; }
+  .a-purple { background: #F5F3FF; color: #7C3AED; }
+  .action-text strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .action-text span { font-size: 12px; color: var(--text-muted); }
+
+  /* RECENT STUDENTS TABLE */
+  .card { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 2px 8px rgba(11,31,58,0.04); }
+  .card-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-header h3 { font-size: 15px; font-weight: 600; }
+  .view-all { font-size: 13px; color: var(--navy); text-decoration: none; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 12px 20px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); background: var(--surface); }
+  tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:hover { background: rgba(11,31,58,0.02); }
+  tbody td { padding: 14px 20px; font-size: 14px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .badge-dept { background: #EFF6FF; color: #1E40AF; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+    </div>
+    <span class="brand-name">ResultPortal</span>
+  </div>
+
+  <div class="nav-section">Main</div>
+  <a href="{% url 'admin_dashboard' %}" class="nav-link active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </a>
+
+  <div class="nav-section" style="margin-top:16px">Students</div>
+  <a href="{% url 'student_list' %}" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    All Students
+  </a>
+  <a href="{% url 'add_student' %}" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    Add Student
+  </a>
+
+  <div class="nav-section" style="margin-top:16px">Results</div>
+  <a href="{% url 'manage_results' %}" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6M7 8h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
+    Manage Results
+  </a>
+  <a href="{% url 'add_result' %}" class="nav-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    Add Result
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="admin-chip">
+      <div class="admin-avatar">A</div>
+      <div class="admin-info">
+        <span>{{ request.user.username }}</span>
+        <small>Administrator</small>
+      </div>
+    </div>
+    <a href="{% url 'logout' %}" class="nav-link" style="color: rgba(224,80,80,0.8);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  <div class="page-header">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-sub">Welcome back, {{ request.user.get_full_name|default:request.user.username }}. Here's what's happening today.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon icon-students">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div>
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value">{{ total_students }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon icon-subjects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <div>
+        <div class="stat-label">Total Subjects</div>
+        <div class="stat-value">{{ total_subjects }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon icon-results">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6M7 8h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
+      </div>
+      <div>
+        <div class="stat-label">Results Published</div>
+        <div class="stat-value">{{ total_results }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="section-title">Quick Actions</div>
+  <div class="actions-grid">
+    <a href="{% url 'add_student' %}" class="action-card">
+      <div class="action-icon a-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      </div>
+      <div class="action-text">
+        <strong>Add New Student</strong>
+        <span>Register a new student account</span>
+      </div>
+    </a>
+    <a href="{% url 'add_result' %}" class="action-card">
+      <div class="action-icon a-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <div class="action-text">
+        <strong>Enter Marks</strong>
+        <span>Add or update student results</span>
+      </div>
+    </a>
+    <a href="{% url 'student_list' %}" class="action-card">
+      <div class="action-icon a-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="action-text">
+        <strong>View All Students</strong>
+        <span>Search and manage students</span>
+      </div>
+    </a>
+    <a href="{% url 'manage_results' %}" class="action-card">
+      <div class="action-icon a-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="action-text">
+        <strong>View Results</strong>
+        <span>Check published results by student</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- RECENT STUDENTS -->
+  <div class="section-title">Recently Added Students</div>
+  <div class="card">
+    <div class="card-header">
+      <h3>Recent Registrations</h3>
+      <a href="{% url 'student_list' %}" class="view-all">View all →</a>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Register No.</th>
+          <th>Department</th>
+          <th>Semester</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in recent_students %}
+        <tr>
+          <td style="font-weight:500">{{ student.full_name }}</td>
+          <td style="font-family:monospace;font-size:13px;color:var(--text-sub)">{{ student.register_number }}</td>
+          <td><span class="badge badge-dept">{{ student.department.code|default:"N/A" }}</span></td>
+          <td>Semester {{ student.semester }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted)">No students added yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!-- ===================================================
+  FILE: results/templates/results/add_result.html
+  =================================================== -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Result — ResultPortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--navy:#0B1F3A;--gold:#C9A84C;--surface:#F8FAFD;--border:#E2E8F0;--text-main:#0B1F3A;--text-sub:#4A6080;--text-muted:#8FA3BC;}
+  body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text-main);display:flex;min-height:100vh;}
+  .sidebar{width:240px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column;padding:24px 16px;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+  .sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 8px 28px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+  .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,#C9A84C,#B8962E);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .brand-icon svg{width:18px;height:18px;color:var(--navy);}
+  .brand-name{font-family:'Playfair Display',serif;font-size:16px;color:white;}
+  .nav-section{font-size:10px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 12px;margin-bottom:8px;}
+  .nav-link{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:2px;color:rgba(255,255,255,0.6);font-size:14px;text-decoration:none;transition:all 0.2s;}
+  .nav-link svg{width:18px;height:18px;}
+  .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.08);color:white;}
+  .nav-link.active{background:rgba(201,168,76,0.12);color:#E8C96A;}
+  .sidebar-footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);}
+  .main-content{margin-left:240px;flex:1;padding:32px;max-width:700px;}
+  .page-title{font-family:'Playfair Display',serif;font-size:28px;color:var(--navy);margin-bottom:28px;}
+  .form-card{background:white;border-radius:20px;border:1px solid var(--border);padding:36px;box-shadow:0 4px 16px rgba(11,31,58,0.06);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .form-group{margin-bottom:16px;}
+  .form-group.full{grid-column:1/-1;}
+  label{display:block;font-size:12px;font-weight:600;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;}
+  .form-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-main);outline:none;transition:border-color 0.2s;}
+  .form-input:focus{border-color:var(--navy);}
+  .marks-hint{font-size:11px;color:var(--text-muted);margin-top:3px;}
+  .btn-primary{background:linear-gradient(135deg,#C9A84C,#B8962E);color:var(--navy);font-weight:700;border:none;padding:13px 28px;border-radius:10px;font-size:14px;cursor:pointer;transition:transform 0.15s;}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-secondary{background:white;color:var(--text-sub);border:1px solid var(--border);padding:13px 22px;border-radius:10px;font-size:14px;cursor:pointer;text-decoration:none;}
+  .form-actions{display:flex;gap:12px;margin-top:8px;}
+  .info-box{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#1E40AF;}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+    <span class="brand-name">ResultPortal</span>
+  </div>
+  <div class="nav-section">Main</div>
+  <a href="{% url 'admin_dashboard' %}" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+  <div class="nav-section" style="margin-top:16px">Students</div>
+  <a href="{% url 'student_list' %}" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>All Students</a>
+  <a href="{% url 'add_student' %}" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>Add Student</a>
+  <div class="nav-section" style="margin-top:16px">Results</div>
+  <a href="{% url 'manage_results' %}" class="nav-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6M7 8h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>Manage Results</a>
+  <a href="{% url 'add_result' %}" class="nav-link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add Result</a>
+  <div class="sidebar-footer">
+    <a href="{% url 'logout' %}" class="nav-link" style="color:rgba(224,80,80,0.8)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</a>
+  </div>
+</aside>
+
+<main class="main-content">
+  <h1 class="page-title">Enter Marks</h1>
+  <div class="info-box">
+    ℹ️ Grade, grade point, and pass/fail status are calculated automatically based on total marks. If the record already exists, it will be updated.
+  </div>
+  <div class="form-card">
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Student</label>
+          {{ form.student }}
+        </div>
+        <div class="form-group full">
+          <label>Subject</label>
+          {{ form.subject }}
+        </div>
+        <div class="form-group">
+          <label>Semester</label>
+          {{ form.semester }}
+        </div>
+        <div class="form-group">
+          <label>Exam Year</label>
+          {{ form.exam_year }}
+        </div>
+        <div class="form-group">
+          <label>Internal Marks</label>
+          {{ form.internal_marks }}
+          <p class="marks-hint">Maximum: 25 marks</p>
+        </div>
+        <div class="form-group">
+          <label>External Marks</label>
+          {{ form.external_marks }}
+          <p class="marks-hint">Maximum: 75 marks</p>
+        </div>
+      </div>
+
+      <!-- Live Total Preview -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:8px;">Live Preview</div>
+        <div style="display:flex;gap:24px;font-size:14px;">
+          <span>Total: <strong id="preview-total">—</strong>/100</span>
+          <span>Grade: <strong id="preview-grade">—</strong></span>
+          <span>Status: <strong id="preview-status">—</strong></span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Save Result</button>
+        <a href="{% url 'manage_results' %}" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+function getGrade(total) {
+  if (total >= 91) return {grade:'O', status:'Pass'};
+  if (total >= 81) return {grade:'A+', status:'Pass'};
+  if (total >= 71) return {grade:'A', status:'Pass'};
+  if (total >= 61) return {grade:'B+', status:'Pass'};
+  if (total >= 51) return {grade:'B', status:'Pass'};
+  if (total >= 40) return {grade:'C', status:'Pass'};
+  return {grade:'U', status:'Fail'};
+}
+
+function updatePreview() {
+  const internal = parseFloat(document.querySelector('[name="internal_marks"]').value) || 0;
+  const external = parseFloat(document.querySelector('[name="external_marks"]').value) || 0;
+  const total = internal + external;
+  const {grade, status} = getGrade(total);
+  document.getElementById('preview-total').textContent = total.toFixed(1);
+  document.getElementById('preview-grade').textContent = grade;
+  document.getElementById('preview-status').textContent = status;
+  document.getElementById('preview-status').style.color = status === 'Pass' ? '#059669' : '#DC2626';
+}
+
+document.querySelector('[name="internal_marks"]').addEventListener('input', updatePreview);
+document.querySelector('[name="external_marks"]').addEventListener('input', updatePreview);
+</script>
+</body>
+</html>

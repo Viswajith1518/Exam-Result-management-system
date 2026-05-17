@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Results — {{ student.full_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0B1F3A;
+    --navy-mid: #132A4E;
+    --navy-light: #1E3D6B;
+    --slate: #2D4A6E;
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --white: #FFFFFF;
+    --off-white: #F4F6F9;
+    --surface: #F8FAFD;
+    --border: #E2E8F0;
+    --text-main: #0B1F3A;
+    --text-sub: #4A6080;
+    --text-muted: #8FA3BC;
+    --pass-bg: #ECFDF5;
+    --pass-text: #065F46;
+    --pass-border: #A7F3D0;
+    --fail-bg: #FEF2F2;
+    --fail-text: #991B1B;
+    --fail-border: #FECACA;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  .topnav {
+    background: var(--navy);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 16px rgba(11,31,58,0.3);
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), #B8962E);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .brand-icon svg { width: 20px; height: 20px; color: var(--navy); }
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; color: white;
+  }
+  .nav-user {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .user-chip {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .logout-btn {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 7px 14px;
+    color: var(--gold-light);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .logout-btn:hover { background: rgba(201,168,76,0.25); }
+
+  /* MAIN LAYOUT */
+  .main-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 24px;
+  }
+
+  /* PROFILE HEADER CARD */
+  .profile-card {
+    background: var(--navy);
+    border-radius: 20px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    box-shadow: 0 8px 32px rgba(11,31,58,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
+  }
+  .avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--navy-light), var(--slate));
+    border: 3px solid rgba(201,168,76,0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-initials {
+    font-size: 28px; font-weight: 700;
+    color: var(--gold-light);
+    font-family: 'Playfair Display', serif;
+  }
+  .profile-info h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; color: white; margin-bottom: 6px;
+  }
+  .profile-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+  }
+  .meta-item {
+    font-size: 13px; color: rgba(255,255,255,0.55);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .meta-item strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+  /* STATS ROW */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(11,31,58,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(11,31,58,0.1); }
+  .stat-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); font-weight: 600; margin-bottom: 10px;
+  }
+  .stat-value {
+    font-size: 32px; font-weight: 700; line-height: 1;
+    font-family: 'Playfair Display', serif;
+  }
+  .stat-value.gpa { color: var(--navy); }
+  .stat-value.pass { color: #059669; }
+  .stat-value.fail { color: #DC2626; }
+  .stat-value.credits { color: var(--slate); }
+  .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* GPA BADGE */
+  .gpa-badge {
+    display: inline-flex; align-items: center;
+    background: linear-gradient(135deg, var(--gold), #B8962E);
+    color: var(--navy);
+    font-weight: 700; font-size: 13px;
+    padding: 5px 12px; border-radius: 20px;
+    margin-top: 10px;
+  }
+
+  /* SEMESTER SELECTOR */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: gap;
+  }
+  .section-title {
+    font-size: 20px; font-weight: 600; color: var(--text-main);
+  }
+  .semester-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sem-tab {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-sub);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .sem-tab.active, .sem-tab:hover {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+
+  /* RESULTS TABLE */
+  .results-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(11,31,58,0.06);
+  }
+  .results-table { width: 100%; border-collapse: collapse; }
+  .results-table thead {
+    background: var(--navy);
+  }
+  .results-table thead th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+  }
+  .results-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .results-table tbody tr:last-child { border-bottom: none; }
+  .results-table tbody tr:hover { background: rgba(11,31,58,0.02); }
+  .results-table td {
+    padding: 16px 20px;
+    font-size: 14px;
+    color: var(--text-main);
+  }
+  .subject-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; font-weight: 600;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .subject-name { font-weight: 500; }
+  .marks-cell { text-align: center; }
+  .total-marks {
+    font-size: 16px; font-weight: 700;
+    color: var(--navy);
+  }
+  .marks-breakdown { font-size: 11px; color: var(--text-muted); }
+
+  /* Grade badge */
+  .grade-badge {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    font-weight: 700; font-size: 15px;
+  }
+  .grade-O, .grade-Ap { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+  .grade-A  { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+  .grade-Bp { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+  .grade-B  { background: #FFF7ED; color: #9A3412; border: 1px solid #FED7AA; }
+  .grade-C  { background: #F5F3FF; color: #5B21B6; border: 1px solid #DDD6FE; }
+  .grade-U, .grade-AB { background: var(--fail-bg); color: var(--fail-text); border: 1px solid var(--fail-border); }
+
+  /* Pass/Fail pill */
+  .status-pill {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .status-pass { background: var(--pass-bg); color: var(--pass-text); border: 1px solid var(--pass-border); }
+  .status-fail { background: var(--fail-bg); color: var(--fail-text); border: 1px solid var(--fail-border); }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+  }
+  .no-results svg { width: 48px; height: 48px; margin: 0 auto 16px; display: block; opacity: 0.4; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .profile-card { flex-direction: column; align-items: flex-start; }
+    .topnav { padding: 0 16px; }
+    .main-container { padding: 20px 16px; }
+    .results-table thead th, .results-table td { padding: 12px 12px; font-size: 13px; }
+  }
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="nav-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+    </div>
+    <span class="brand-name">ResultPortal</span>
+  </div>
+  <div class="nav-user">
+    <span class="user-chip">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      {{ student.full_name }}
+    </span>
+    <a href="{% url 'logout' %}" class="logout-btn">Sign Out</a>
+  </div>
+</nav>
+
+<div class="main-container">
+
+  <!-- PROFILE HEADER -->
+  <div class="profile-card">
+    <div class="avatar">
+      {% if student.photo %}
+        <img src="{{ student.photo.url }}" alt="{{ student.full_name }}">
+      {% else %}
+        <span class="avatar-initials">{{ student.full_name|first }}</span>
+      {% endif %}
+    </div>
+    <div class="profile-info">
+      <h1>{{ student.full_name }}</h1>
+      <div class="profile-meta">
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          Reg. No: <strong>{{ student.register_number }}</strong>
+        </span>
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          Dept: <strong>{{ student.department.name|default:"N/A" }}</strong>
+        </span>
+        <span class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          Semester: <strong>{{ semester }}</strong>
+        </span>
+        <span class="meta-item">Batch: <strong>{{ student.batch_year }}</strong></span>
+      </div>
+      <div class="gpa-badge">⭐ Overall GPA: {{ gpa }}</div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">GPA (This Semester)</div>
+      <div class="stat-value gpa">{{ gpa }}</div>
+      <div class="stat-sub">out of 10.0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Subjects Passed</div>
+      <div class="stat-value pass">{{ passed }}</div>
+      <div class="stat-sub">of {{ total_subjects }} subjects</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Subjects Failed</div>
+      <div class="stat-value fail">{{ failed }}</div>
+      <div class="stat-sub">{% if failed == 0 %}All clear!{% else %}Need attention{% endif %}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Credits Earned</div>
+      <div class="stat-value credits">{{ total_credits }}</div>
+      <div class="stat-sub">this semester</div>
+    </div>
+  </div>
+
+  <!-- SEMESTER TABS + TABLE -->
+  <div class="section-header">
+    <div class="section-title">Semester {{ semester }} Results</div>
+    <div class="semester-tabs">
+      {% for sem in available_semesters %}
+        <a href="?semester={{ sem }}" class="sem-tab {% if sem == semester %}active{% endif %}">
+          Sem {{ sem }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="results-card">
+    {% if results %}
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Subject</th>
+            <th style="text-align:center">Internal<br><small style="opacity:0.6">/25</small></th>
+            <th style="text-align:center">External<br><small style="opacity:0.6">/75</small></th>
+            <th style="text-align:center">Total<br><small style="opacity:0.6">/100</small></th>
+            <th style="text-align:center">Credits</th>
+            <th style="text-align:center">Grade</th>
+            <th style="text-align:center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+          <tr>
+            <td style="color:var(--text-muted); font-size:13px;">{{ forloop.counter }}</td>
+            <td>
+              <span class="subject-code">{{ result.subject.code }}</span>
+              <span class="subject-name">{{ result.subject.name }}</span>
+            </td>
+            <td class="marks-cell">{{ result.internal_marks }}</td>
+            <td class="marks-cell">{{ result.external_marks }}</td>
+            <td class="marks-cell">
+              <span class="total-marks">{{ result.internal_marks|add:result.external_marks|floatformat:0 }}</span>
+            </td>
+            <td class="marks-cell" style="font-weight:600">{{ result.subject.credits }}</td>
+            <td class="marks-cell">
+              <span class="grade-badge grade-{{ result.grade|cut:'+' }}">{{ result.grade }}</span>
+            </td>
+            <td class="marks-cell">
+              {% if result.is_pass %}
+                <span class="status-pill status-pass">Pass</span>
+              {% else %}
+                <span class="status-pill status-fail">Fail</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="no-results">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <p style="font-size:16px;font-weight:500;margin-bottom:6px;">No results for Semester {{ semester }}</p>
+        <p style="font-size:13px;">Results will appear here once published by your department.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>

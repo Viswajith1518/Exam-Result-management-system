@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Results — ResultPortal</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--navy:#0B1F3A;--gold:#C9A84C;--surface:#F8FAFD;--border:#E2E8F0;--text-main:#0B1F3A;--text-sub:#4A6080;--text-muted:#8FA3BC;}
+  body{font-family:'Segoe UI',sans-serif;background:var(--surface);color:var(--text-main);display:flex;min-height:100vh;}
+  .sidebar{width:220px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column;padding:20px 14px;position:fixed;top:0;left:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 8px 24px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:20px;}
+  .brand-icon{width:34px;height:34px;background:linear-gradient(135deg,#C9A84C,#B8962E);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .brand-name{font-size:16px;font-weight:700;color:white;}
+  .nav-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:2px;color:rgba(255,255,255,0.6);font-size:14px;text-decoration:none;transition:all 0.2s;}
+  .nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.08);color:white;}
+  .nav-link.active{background:rgba(201,168,76,0.15);color:#E8C96A;}
+  .nav-section{font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 12px;margin:14px 0 6px;}
+  .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);}
+  .main{margin-left:220px;flex:1;padding:28px;}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .page-title{font-size:26px;font-weight:700;color:var(--navy);}
+  .btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;border:none;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:linear-gradient(135deg,#C9A84C,#B8962E);color:var(--navy);}
+  .btn-primary:hover{opacity:0.9;}
+  .card{background:white;border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(11,31,58,0.05);margin-bottom:24px;}
+  .card-header{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .card-header h3{font-size:15px;font-weight:600;}
+  .filter-form{display:flex;gap:12px;align-items:center;padding:16px 22px;background:var(--surface);border-bottom:1px solid var(--border);}
+  .filter-form select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Segoe UI',sans-serif;outline:none;background:white;min-width:200px;}
+  .filter-form button{padding:10px 20px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);background:var(--surface);}
+  tbody tr{border-top:1px solid var(--border);transition:background 0.15s;}
+  tbody tr:hover{background:rgba(11,31,58,0.02);}
+  tbody td{padding:14px 18px;font-size:14px;}
+  .badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+  .badge-pass{background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0;}
+  .badge-fail{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;}
+  .grade-badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-weight:700;font-size:14px;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;}
+  .delete-btn{padding:5px 12px;background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;}
+  .gpa-card{background:linear-gradient(135deg,var(--navy),#1E3D6B);border-radius:14px;padding:20px 24px;color:white;margin-bottom:20px;display:flex;align-items:center;gap:20px;}
+  .gpa-num{font-size:42px;font-weight:700;color:#E8C96A;line-height:1;}
+  .gpa-label{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:4px;}
+  .gpa-name{font-size:17px;font-weight:600;}
+  .no-data{text-align:center;padding:50px;color:var(--text-muted);}
+  .no-data p{font-size:15px;margin-top:8px;}
+  .alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+  .alert-success{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;}
+  .alert-error{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">🎓</div>
+    <span class="brand-name">ResultPortal</span>
+  </div>
+  <div class="nav-section">Main</div>
+  <a href="{% url 'admin_dashboard' %}" class="nav-link">🏠 Dashboard</a>
+  <div class="nav-section">Students</div>
+  <a href="{% url 'student_list' %}" class="nav-link">👥 All Students</a>
+  <a href="{% url 'add_student' %}" class="nav-link">➕ Add Student</a>
+  <div class="nav-section">Results</div>
+  <a href="{% url 'manage_results' %}" class="nav-link active">📊 Manage Results</a>
+  <a href="{% url 'add_result' %}" class="nav-link">✏️ Add Result</a>
+  <div class="sidebar-footer">
+    <a href="{% url 'logout' %}" class="nav-link" style="color:rgba(224,80,80,0.8)">🚪 Sign Out</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <h1 class="page-title">Manage Results</h1>
+    <a href="{% url 'add_result' %}" class="btn btn-primary">✏️ Add Result</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Student Filter -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Select Student to View Results</h3>
+    </div>
+    <form method="GET" class="filter-form">
+      <select name="student_id">
+        <option value="">-- Select a Student --</option>
+        {% for s in students %}
+          <option value="{{ s.pk }}" {% if selected_student and selected_student.pk == s.pk %}selected{% endif %}>
+            {{ s.register_number }} — {{ s.full_name }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit">View Results</button>
+    </form>
+  </div>
+
+  <!-- Results Table -->
+  {% if selected_student %}
+    <div class="gpa-card">
+      <div>
+        <div class="gpa-label">Overall GPA</div>
+        <div class="gpa-num">{{ gpa }}</div>
+      </div>
+      <div>
+        <div class="gpa-label">Student</div>
+        <div class="gpa-name">{{ selected_student.full_name }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:2px;">{{ selected_student.register_number }} | {{ selected_student.department.name|default:"N/A" }}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Results for {{ selected_student.full_name }}</h3>
+        <a href="{% url 'add_result' %}" class="btn btn-primary" style="font-size:13px;padding:7px 14px;">+ Add More</a>
+      </div>
+      {% if results %}
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Subject</th>
+              <th>Semester</th>
+              <th style="text-align:center">Internal /25</th>
+              <th style="text-align:center">External /75</th>
+              <th style="text-align:center">Total</th>
+              <th style="text-align:center">Grade</th>
+              <th style="text-align:center">Status</th>
+              <th style="text-align:center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in results %}
+            <tr>
+              <td style="color:var(--text-muted)">{{ forloop.counter }}</td>
+              <td>
+                <span style="font-size:11px;color:var(--text-muted);display:block">{{ result.subject.code }}</span>
+                <span style="font-weight:500">{{ result.subject.name }}</span>
+              </td>
+              <td>Sem {{ result.semester }}</td>
+              <td style="text-align:center">{{ result.internal_marks }}</td>
+              <td style="text-align:center">{{ result.external_marks }}</td>
+              <td style="text-align:center;font-weight:700;font-size:16px;">{{ result.internal_marks|add:result.external_marks|floatformat:0 }}</td>
+              <td style="text-align:center"><span class="grade-badge">{{ result.grade }}</span></td>
+              <td style="text-align:center">
+                {% if result.is_pass %}
+                  <span class="badge badge-pass">Pass</span>
+                {% else %}
+                  <span class="badge badge-fail">Fail</span>
+                {% endif %}
+              </td>
+              <td style="text-align:center">
+                <a href="{% url 'delete_result' result.pk %}" class="delete-btn" onclick="return confirm('Delete this result?')">🗑 Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="no-data">
+          <p>No results found for this student.</p>
+          <a href="{% url 'add_result' %}" class="btn btn-primary" style="margin-top:14px;display:inline-flex;">Add First Result</a>
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="no-data">
+        <p>👆 Select a student above to view their results.</p>
+      </div>
+    </div>
+  {% endif %}
+</main>
+
+</body>
+</html>

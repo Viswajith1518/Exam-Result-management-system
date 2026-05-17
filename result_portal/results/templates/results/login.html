@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Portal — Login</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0B1F3A 0%, #1E3D6B 50%, #0B1F3A 100%);
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 20px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 44px 40px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  }
+
+  .portal-crest {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .crest-icon {
+    width: 60px; height: 60px;
+    margin: 0 auto 14px;
+    background: linear-gradient(135deg, #C9A84C, #E8C96A);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .portal-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .portal-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .alert {
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert-error {
+    background: rgba(224,80,80,0.15);
+    border: 1px solid rgba(224,80,80,0.3);
+    color: #F09090;
+  }
+  .alert-success {
+    background: rgba(59,176,120,0.15);
+    border: 1px solid rgba(59,176,120,0.3);
+    color: #70D0A0;
+  }
+
+  .role-toggle {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+
+  .role-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .role-btn.active {
+    background: linear-gradient(135deg, #C9A84C, #B8962E);
+    color: #0B1F3A;
+    font-weight: 700;
+  }
+
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 7px;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 18px;
+  }
+
+  .input-wrap input {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-family: 'Segoe UI', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap input::placeholder {
+    color: rgba(255,255,255,0.3);
+  }
+
+  .input-wrap input:focus {
+    border-color: #C9A84C;
+    background: rgba(201,168,76,0.08);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #C9A84C, #B8962E);
+    border: none;
+    border-radius: 10px;
+    color: #0B1F3A;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 6px 20px rgba(201,168,76,0.35);
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(201,168,76,0.5);
+  }
+
+  .footer-text {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.25);
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+
+  <div class="portal-crest">
+    <div class="crest-icon">🎓</div>
+    <div class="portal-name">ResultPortal</div>
+    <div class="portal-sub">Student Academic Records System</div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="role-toggle">
+    <button class="role-btn active" id="btn-admin" onclick="switchRole('admin')">
+      🛡️ Admin Login
+    </button>
+    <button class="role-btn" id="btn-student" onclick="switchRole('student')">
+      🎓 Student Login
+    </button>
+  </div>
+
+  <!-- ADMIN FORM -->
+  <div class="form-panel active" id="panel-admin">
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="login_type" value="admin">
+
+      <div class="input-wrap">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter admin username" required>
+      </div>
+
+      <div class="input-wrap">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="submit-btn">Sign In as Admin</button>
+    </form>
+  </div>
+
+  <!-- STUDENT FORM -->
+  <div class="form-panel" id="panel-student">
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="login_type" value="student">
+
+      <div class="input-wrap">
+        <label>Register Number</label>
+        <input type="text" name="register_number" placeholder="e.g. 22CSE001" required>
+      </div>
+
+      <div class="input-wrap">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="submit-btn">View My Results</button>
+    </form>
+  </div>
+
+  <div class="footer-text">© 2024 College Result Management System</div>
+
+</div>
+
+<script>
+function switchRole(role) {
+  document.getElementById('panel-admin').classList.toggle('active', role === 'admin');
+  document.getElementById('panel-student').classList.toggle('active', role === 'student');
+  document.getElementById('btn-admin').classList.toggle('active', role === 'admin');
+  document.getElementById('btn-student').classList.toggle('active', role === 'student');
+}
+</script>
+</body>
+</html>
